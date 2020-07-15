@@ -1,5 +1,5 @@
 # CPM
-Convolutional Pose Machine on ![MPII](http://human-pose.mpi-inf.mpg.de/)
+Convolutional Pose Machine on [MPII](http://human-pose.mpi-inf.mpg.de/)
 
 * Preprocess
  > Origin <img src="https://github.com/lyuheng/CPM/blob/master/imgs/ori_cat.jpg">

@@ -5,10 +5,11 @@ Convolutional Pose Machine on [MPII](http://human-pose.mpi-inf.mpg.de/)
  > Origin <img src="https://github.com/lyuheng/CPM/blob/master/imgs/ori_cat.jpg" >
  > After rotate, flip, crop  <img src="https://github.com/lyuheng/CPM/blob/master/imgs/crop_cat.jpg" >
  
-* Results of training on first 2k images(total ~20k). From left to right is stage1 to stage6. 
+* Results of training on first 2k images(total ~20k).
 
-|**left wrist**   |   ![](https://github.com/lyuheng/CPM/blob/master/imgs/right%20wrist_stages.jpg) | 
+|    | From stage1 to stage 6 | 
 |:--:|:--:|
+|**left wrist**   |   ![](https://github.com/lyuheng/CPM/blob/master/imgs/right%20wrist_stages.jpg) | 
 |**right wrist**  |   ![](https://github.com/lyuheng/CPM/blob/master/imgs/left%20wrist_stages.jpg)  |
 |    |        | 
 | **left elbow**  | ![](https://github.com/lyuheng/CPM/blob/master/imgs/right%20elbow_stages.jpg) | 

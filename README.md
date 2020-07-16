@@ -25,3 +25,6 @@ Convolutional Pose Machine on [MPII](http://human-pose.mpi-inf.mpg.de/)
 |   |      | 
 | **left ankle** | ![](https://github.com/lyuheng/CPM/blob/master/imgs/right%20ankle_stages.jpg)  | 
 | **right ankle** | ![](https://github.com/lyuheng/CPM/blob/master/imgs/left%20ankle_stages.jpg)  | 
+
+* Showing all keypoints
+![](https://github.com/lyuheng/CPM/blob/master/imgs/res_cat.jpg)

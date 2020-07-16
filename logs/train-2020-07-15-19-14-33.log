@@ -1,0 +1,135 @@
+USE:  cuda:0
+==================== START TRAINING ====================
+Epoch: 1 || Training Loss: 0.05749703799933195
+Epoch: 1 || Testing Loss: 0.04803586181253195
+===============CHECKPOINT PARAMS SAVED AT EPOCH 1 ===============
+Epoch: 2 || Training Loss: 0.04680736368894577
+Epoch: 2 || Testing Loss: 0.04595110319554806
+===============CHECKPOINT PARAMS SAVED AT EPOCH 2 ===============
+Epoch: 3 || Training Loss: 0.04543542194366455
+Epoch: 3 || Testing Loss: 0.044776074197143315
+===============CHECKPOINT PARAMS SAVED AT EPOCH 3 ===============
+Epoch: 4 || Training Loss: 0.04417956492304802
+Epoch: 4 || Testing Loss: 0.0436867007240653
+===============CHECKPOINT PARAMS SAVED AT EPOCH 4 ===============
+Epoch: 5 || Training Loss: 0.043286650508642194
+Epoch: 5 || Testing Loss: 0.04270110825076699
+===============CHECKPOINT PARAMS SAVED AT EPOCH 5 ===============
+Epoch: 6 || Training Loss: 0.04242877190560102
+Epoch: 6 || Testing Loss: 0.04208856184035539
+===============CHECKPOINT PARAMS SAVED AT EPOCH 6 ===============
+Epoch: 7 || Training Loss: 0.041474693953990935
+Epoch: 7 || Testing Loss: 0.04100062274374068
+===============CHECKPOINT PARAMS SAVED AT EPOCH 7 ===============
+Epoch: 8 || Training Loss: 0.04077250166982412
+Epoch: 8 || Testing Loss: 0.04036588253453374
+===============CHECKPOINT PARAMS SAVED AT EPOCH 8 ===============
+Epoch: 9 || Training Loss: 0.040076723776757715
+Epoch: 9 || Testing Loss: 0.039815820101648566
+===============CHECKPOINT PARAMS SAVED AT EPOCH 9 ===============
+Epoch: 10 || Training Loss: 0.039429664958268405
+Epoch: 10 || Testing Loss: 0.03878339471295476
+===============CHECKPOINT PARAMS SAVED AT EPOCH 10 ===============
+Epoch: 11 || Training Loss: 0.038695111081004145
+Epoch: 11 || Testing Loss: 0.03863312228582799
+===============CHECKPOINT PARAMS SAVED AT EPOCH 11 ===============
+Epoch: 12 || Training Loss: 0.0381427206993103
+Epoch: 12 || Testing Loss: 0.03817040039226413
+===============CHECKPOINT PARAMS SAVED AT EPOCH 12 ===============
+Epoch: 13 || Training Loss: 0.037729946944862605
+Epoch: 13 || Testing Loss: 0.037783345654606816
+===============CHECKPOINT PARAMS SAVED AT EPOCH 13 ===============
+Epoch: 14 || Training Loss: 0.03713936899229884
+Epoch: 14 || Testing Loss: 0.0376514477096498
+===============CHECKPOINT PARAMS SAVED AT EPOCH 14 ===============
+Epoch: 15 || Training Loss: 0.036799640730023384
+Epoch: 15 || Testing Loss: 0.03711030652746558
+===============CHECKPOINT PARAMS SAVED AT EPOCH 15 ===============
+Epoch: 16 || Training Loss: 0.036263241715729234
+Epoch: 16 || Testing Loss: 0.03639687982387841
+===============CHECKPOINT PARAMS SAVED AT EPOCH 16 ===============
+Epoch: 17 || Training Loss: 0.03577306347712875
+Epoch: 17 || Testing Loss: 0.036446001399308446
+Epoch: 18 || Training Loss: 0.03536567700654268
+Epoch: 18 || Testing Loss: 0.035577191421762105
+===============CHECKPOINT PARAMS SAVED AT EPOCH 18 ===============
+Epoch: 19 || Training Loss: 0.034942987497895955
+Epoch: 19 || Testing Loss: 0.03572450232692063
+Epoch: 20 || Training Loss: 0.034687649182975296
+Epoch: 20 || Testing Loss: 0.03552944081835449
+===============CHECKPOINT PARAMS SAVED AT EPOCH 20 ===============
+Epoch: 21 || Training Loss: 0.034257100392133
+Epoch: 21 || Testing Loss: 0.035046831844374536
+===============CHECKPOINT PARAMS SAVED AT EPOCH 21 ===============
+Epoch: 22 || Training Loss: 0.03401401985436678
+Epoch: 22 || Testing Loss: 0.03486699034459889
+===============CHECKPOINT PARAMS SAVED AT EPOCH 22 ===============
+Epoch: 23 || Training Loss: 0.03361303681880236
+Epoch: 23 || Testing Loss: 0.03500576973892748
+Epoch: 24 || Training Loss: 0.033250367548316714
+Epoch: 24 || Testing Loss: 0.03466789435595274
+===============CHECKPOINT PARAMS SAVED AT EPOCH 24 ===============
+Epoch: 25 || Training Loss: 0.03303561408817768
+Epoch: 25 || Testing Loss: 0.03441542803309858
+===============CHECKPOINT PARAMS SAVED AT EPOCH 25 ===============
+Epoch: 26 || Training Loss: 0.03251478900387883
+Epoch: 26 || Testing Loss: 0.03445492464117706
+Epoch: 27 || Training Loss: 0.03228010665252805
+Epoch: 27 || Testing Loss: 0.034341434258967636
+===============CHECKPOINT PARAMS SAVED AT EPOCH 27 ===============
+Epoch: 28 || Training Loss: 0.03218339562788606
+Epoch: 28 || Testing Loss: 0.03372943055815995
+===============CHECKPOINT PARAMS SAVED AT EPOCH 28 ===============
+Epoch: 29 || Training Loss: 0.031733183164149525
+Epoch: 29 || Testing Loss: 0.03429121254011989
+Epoch: 30 || Training Loss: 0.03142922630161047
+Epoch: 30 || Testing Loss: 0.0336604271363467
+===============CHECKPOINT PARAMS SAVED AT EPOCH 30 ===============
+Epoch: 31 || Training Loss: 0.03130141718685627
+Epoch: 31 || Testing Loss: 0.033553619934245944
+===============CHECKPOINT PARAMS SAVED AT EPOCH 31 ===============
+Epoch: 32 || Training Loss: 0.031141597252339125
+Epoch: 32 || Testing Loss: 0.03352181531488895
+===============CHECKPOINT PARAMS SAVED AT EPOCH 32 ===============
+Epoch: 33 || Training Loss: 0.030826908241957426
+Epoch: 33 || Testing Loss: 0.03339539336971939
+===============CHECKPOINT PARAMS SAVED AT EPOCH 33 ===============
+Epoch: 34 || Training Loss: 0.030437425188720228
+Epoch: 34 || Testing Loss: 0.03346282741054893
+Epoch: 35 || Training Loss: 0.03023035477846861
+Epoch: 35 || Testing Loss: 0.033050064919516446
+===============CHECKPOINT PARAMS SAVED AT EPOCH 35 ===============
+Epoch: 36 || Training Loss: 0.03016980218142271
+Epoch: 36 || Testing Loss: 0.03362066984176636
+Epoch: 37 || Training Loss: 0.02990780522674322
+Epoch: 37 || Testing Loss: 0.033117858851328494
+Epoch: 38 || Training Loss: 0.029766740839928387
+Epoch: 38 || Testing Loss: 0.033280941275879744
+Epoch: 39 || Training Loss: 0.02952678732573986
+Epoch: 39 || Testing Loss: 0.03297892228700221
+===============CHECKPOINT PARAMS SAVED AT EPOCH 39 ===============
+Epoch: 40 || Training Loss: 0.029553880516439677
+Epoch: 40 || Testing Loss: 0.03319694272708148
+Epoch: 41 || Training Loss: 0.029269675210118293
+Epoch: 41 || Testing Loss: 0.033465485218912364
+Epoch: 42 || Training Loss: 0.029007313597947358
+Epoch: 42 || Testing Loss: 0.03283392838202417
+===============CHECKPOINT PARAMS SAVED AT EPOCH 42 ===============
+Epoch: 43 || Training Loss: 0.02888669940456748
+Epoch: 43 || Testing Loss: 0.032469807714223864
+===============CHECKPOINT PARAMS SAVED AT EPOCH 43 ===============
+Epoch: 44 || Training Loss: 0.028723604187369346
+Epoch: 44 || Testing Loss: 0.03268576984293759
+Epoch: 45 || Training Loss: 0.028329994224011897
+Epoch: 45 || Testing Loss: 0.032705134144052864
+Epoch: 46 || Training Loss: 0.02823176433518529
+Epoch: 46 || Testing Loss: 0.0325378363346681
+Epoch: 47 || Training Loss: 0.028125158976763487
+Epoch: 47 || Testing Loss: 0.03265134401153773
+Epoch: 48 || Training Loss: 0.02812019181624055
+Epoch: 48 || Testing Loss: 0.032863709945231676
+Epoch: 49 || Training Loss: 0.02796032029390335
+Epoch: 49 || Testing Loss: 0.03272461531683803
+Epoch: 50 || Training Loss: 0.02758827870339155
+Epoch: 50 || Testing Loss: 0.032886782260611654
+ Training Complete !

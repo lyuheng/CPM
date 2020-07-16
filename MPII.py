@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import skimage
 
 import img_utils as imgutils
+import transform
 
 MPII_FILE_DIR = '../mpii_human_pose_v1'
 
@@ -17,15 +18,14 @@ class MPII(torchdata.Dataset):
     """
     Dataset for MPII
     """
-    def __init__(self, is_training=True, rand_scale=True, rand_rotation=False, flip=True):
+    def __init__(self, is_training=True, use_rotation=True, use_flip=True):
         """
         rotation not implemented
         """
-        super(MPII,self).__init__()
+        super(MPII, self).__init__()
         self.is_training = is_training
-        self.rand_scale = rand_scale
-        self.rand_rotation = rand_rotation 
-        self.flip = flip
+        self.use_rotation = use_rotation
+        self.use_flip = use_flip
 
         json_dir = os.path.join(MPII_FILE_DIR, 'mpii_annotations.json')
 
@@ -42,8 +42,8 @@ class MPII(torchdata.Dataset):
                 self.train_list.append(i)
         
         ### only use a sample to train  ###
-        self.train_list = self.train_list[:200]
-        self.test_list  = self.test_list[:40]
+        self.train_list = self.train_list[:2000]
+        self.test_list  = self.test_list[:200]
 
     def __getitem__(self, index):
 
@@ -58,8 +58,9 @@ class MPII(torchdata.Dataset):
         img = imgutils.load_img(img_dir)
 
         pts = ele_anno['joint_self']
-        cen = ele_anno['objpos']
-        
+        cen = ele_anno['objpos'].copy()
+        scale = ele_anno['scale_provided']
+
         """
         dataset :  MPI
         isValidation :  1.0
@@ -78,25 +79,23 @@ class MPII(torchdata.Dataset):
         """
 
         # generate crop image
-        img_crop, pts_crop, cen_crop = imgutils.crop(img, ele_anno, \
-                                                    use_scale = self.rand_scale, use_flip=self.flip)
+        #print(img)
+        img_crop, pts_crop, cen_crop = imgutils.crop(img, ele_anno)
+        pts_crop = np.array(pts_crop)
+        cen_crop = np.array(cen_crop)
         
-        img_out, pts_out, c_out = imgutils.change_resolu(img_crop, pts_crop, cen_crop, (46,46) )
+        height, width, _ = img_crop.shape
+        train_img = np.transpose(img_crop, (2,0,1))/255.0
 
-        train_img = skimage.transform.resize(img_crop, img_sz)
+        train_heatmaps = imgutils.generate_heatmaps(np.zeros((46,46)), pts_crop/8)
+        train_heatmaps = np.transpose(train_heatmaps, (2,0,1))
 
-        train_heatmap = imgutils.generate_heatmaps(img_out, pts_out, sigma_valu=2)
-        
-        train_centermap = imgutils.generate_heatmap(np.zeros((46,46)), c_out, sigma_valu=2) ###??
-
+        train_centermap = imgutils.generate_heatmap(np.zeros((368,368)), cen_crop)
         train_centermap = np.expand_dims(train_centermap, axis=0)
 
-        train_img = np.transpose(train_img, (2,0,1))
-        train_heatmap = np.transpose(train_heatmap, (2,0,1))
-    
-        #return img_out, pts_out, c_out
+        #return img_crop, pts_crop, cen_crop, img, pts, cen
 
-        return train_img, train_heatmap, train_centermap
+        return train_img, train_heatmaps, train_centermap
 
     def __len__(self):
         if self.is_training:
@@ -114,23 +113,29 @@ class MPII(torchdata.Dataset):
 
         return imgs, heatmaps, centermap
 
-        # imgs, pts, cens = list(zip(*batch))
-        # return imgs, pts, cens
+        # imgs_crop, pts_crop, cens_crop, imgs, pts, cens = list(zip(*batch))
+
+        # return imgs_crop, pts_crop, cens_crop, imgs, pts, cens
     
 
+# Test preprocessing
 def main():
+    #plt.ion()
     mpii = MPII(is_training=False)
     dataloader = torchdata.DataLoader(mpii, batch_size=1, shuffle=True, collate_fn=mpii.collate_fn)
     for i, (img, heatmap, centermap) in enumerate(dataloader):
+        
+        #print(img.shape, heatmap.shape, centermap.shape)
+        #print(img_crop[0].shape)
 
-        print(img.shape, heatmap.shape, centermap.shape)
-        # imgutils.show_stack_joints(img[0], pts[0], cen[0])
-        # imgutils.show_heatmaps(img[0].transpose(1,2,0), heatmap[0].transpose(1,2,0))
-
+        #imgutils.show_stack_joints(img_crop[0], pts_crop[0], cen_crop[0], num_fig=2*i+1)
+        #imgutils.show_stack_joints(img[0], pts[0], cen[0], num_fig=2*i+2)
+        imgutils.show_heatmaps(img[0].transpose(1,2,0), heatmap[0].transpose(1,2,0))
+        #plt.pause(5)
         if i == 0:
             break
-
+    #plt.ioff()
 
 if __name__ == "__main__":
-    #main()
-    pass
+    main()
+    #pass

@@ -11,7 +11,7 @@ def load_img(dir):
     return img
 
 
-def generate_heatmap(heatmap, pt, sigma_valu=7):
+def generate_heatmap(heatmap, pt, sigma_valu=2):
     '''
     :param heatmap: should be a np zeros array with shape (H,W) (only 1 channel), not (H,W,1)
     :param pt: point coords, np array
@@ -28,7 +28,7 @@ def generate_heatmap(heatmap, pt, sigma_valu=7):
 
 
 
-def generate_heatmaps(img, pts, sigma_valu=7):
+def generate_heatmaps(img, pts, sigma_valu=2):
     '''
     Generate 16 heatmaps
     :param img: np arrray img, (H,W,C)
@@ -38,7 +38,7 @@ def generate_heatmaps(img, pts, sigma_valu=7):
     :return: np array heatmaps, (H,W,num_pts)
     '''
     H, W = img.shape[0], img.shape[1]
-    num_pts = pts.shape[0]
+    num_pts = len(pts)
     heatmaps = np.zeros((H, W, num_pts + 1))
     for i, pt in enumerate(pts):
         # Filter unavailable heatmaps
@@ -56,88 +56,137 @@ def generate_heatmaps(img, pts, sigma_valu=7):
         heatmap = heatmap / am  # scale to [0,1]
         heatmaps[:, :, i] = heatmap
 
-    heatmaps[:, :, num_pts] = 1.0 - np.max(heatmaps[:, :, :num_pts], axis=2)
+    heatmaps[:, :, num_pts] = 1.0 - np.max(heatmaps[:, :, :num_pts], axis=2) # add background dim
 
     return heatmaps
 
 
 
-def crop(img, ele_anno, use_scale=True, use_flip=True):
+def crop(img, ele_anno, use_rotate=True, use_hflip=False, crop_size=368):
 
-    H, W = img.shape[0], img.shape[1]
-    s = ele_anno['scale_provided']      # like 4.431
-    c = ele_anno['objpos']              # like [183.0, 327.0] center
+    # get bbox
+    pts = ele_anno['joint_self']
+    cen = ele_anno['objpos'].copy()
 
-    # Adjust center and scale
-    if c[0] != -1:
-        c[1] = c[1] + 15 * s
-        s = s * 1.25
-    ary_pts = np.array(ele_anno['joint_self'])  # (16, 3)
+    pts = np.array(pts)
+    pts_nonzero = np.where(pts[:,1] != 0)[0]
+    pts_zero = np.where(pts[:,1] == 0)[0]
+    xs = pts[:, 0]
+    #xs = pts[pts_nonzero][:, 0]
+    ys = pts[:, 1]
+    #ys = pts[pts_nonzero][:, 1]
+    bbox = [(max(max(xs[pts_nonzero]),cen[0]) + min(min(xs[pts_nonzero]), cen[0]) )/2.0,
+            (max(max(ys[pts_nonzero]),cen[1]) + min(min(ys[pts_nonzero]), cen[1]) )/2.0,
+            (max(max(xs[pts_nonzero]),cen[0]) - min(min(xs[pts_nonzero]), cen[0]) )*1.3,
+            (max(max(ys[pts_nonzero]),cen[1]) - min(min(ys[pts_nonzero]), cen[1]) )*1.3]
+    bbox = np.array(bbox)
+
+    if use_rotate:
+        H, W = img.shape[0], img.shape[1]
+        img_center = (W / 2.0 , H / 2.0)
+        degree = np.random.uniform(-30,30)
+        rotateMat = cv2.getRotationMatrix2D(img_center, degree, scale=1.0)
+        cos_val = np.abs(rotateMat[0, 0])
+        sin_val = np.abs(rotateMat[0, 1])
+        new_width = int(H * sin_val + W * cos_val)
+        new_height = int(H * cos_val + W * sin_val)
+        rotateMat[0, 2] += (new_width / 2.) - img_center[0]
+        rotateMat[1, 2] += (new_height / 2.) - img_center[1]
+
+        img = cv2.warpAffine(img, rotateMat, (new_width, new_height), borderValue=(0,0,0)) # black border
+        
+
+        num = len(pts)
+        for i in range(num):
+            if pts[i,1]==0:
+                continue
+            x = xs[i]
+            y = ys[i]
+            p = np.array([x, y, 1])
+            p = rotateMat.dot(p)
+            xs[i] = p[0]
+            ys[i] = p[1]
+
+        x = cen[0]
+        y = cen[1]
+        p = np.array([x, y, 1])
+        p = rotateMat.dot(p)
+        cen[0] = p[0]
+        cen[1] = p[1]
+        # update bbox 
+        bbox = [(max(max(xs[pts_nonzero]),cen[0]) + min(min(xs[pts_nonzero]), cen[0]) )/2.0,
+                (max(max(ys[pts_nonzero]),cen[1]) + min(min(ys[pts_nonzero]), cen[1]) )/2.0,
+                (max(max(xs[pts_nonzero]),cen[0]) - min(min(xs[pts_nonzero]), cen[0]) )*1.3,
+                (max(max(ys[pts_nonzero]),cen[1]) - min(min(ys[pts_nonzero]), cen[1]) )*1.3]
+        bbox = np.array(bbox)
+
+
+    ###
+    #pts = [[xs[i], ys[i], pts[i,2]] for i in range(len(xs))]
+    #show_stack_joints(img, pts, cen)
+    ###
+
+    H,W = img.shape[0], img.shape[1]
+    scale = np.random.uniform(0.8, 1.3) # given data
+    bbox[2] *= scale
+    bbox[3] *= scale
+    # topleft:x1,y1  bottomright:x2,y2
+    bb_x1 = int(bbox[0] - bbox[2]/2)
+    bb_y1 = int(bbox[1] - bbox[3]/2)
+    bb_x2 = int(bbox[0] + bbox[2]/2)
+    bb_y2 = int(bbox[1] + bbox[3]/2)
+
+    if bb_x1<0 or bb_x2>W or bb_y1<0 or bb_y2>H:
+        pad = int(max(-bb_x1, bb_x2-W, -bb_y1, bb_y2-H))
+        img = np.pad(img, ((pad, pad),(pad,pad),(0,0)), 'constant')
+    else:
+        pad = 0
+    img = img[bb_y1+pad:bb_y2+pad, bb_x1+pad:bb_x2+pad]
+
+    xs = np.where(xs != 0, xs-bb_x1, xs)
+    ys = np.where(ys != 0, ys-bb_y1, ys)
+    #ys = np.array([ys[i]-bb_y1 for i in range(len(ys)) if i in pts_nonzero])
+    bbox[0] -= bb_x1
+    bbox[1] -= bb_y1
     
-    ### select rows that are not [0,0,0] ###
-    ary_pts_temp = ary_pts[np.any(ary_pts != [0, 0, 0], axis=1)]
+    cen[0] -= bb_x1
+    cen[1] -= bb_y1
 
-    if use_scale:
-        scale_rand = np.random.uniform(low=1.0, high=3.0)
-    else:   
-        scale_rand = 1
+    # horizontal flip
+    if use_hflip and np.random.rand() > 0.:
+        H,W = img.shape[0], img.shape[1]
+        img = cv2.flip(img, 1)
+        xs = (W - 1) - xs
+        cen[0] = (W - 1) - cen[0]
+        for i,j in ((12,13),(11,14),(10,15),(2,3),(1,4), (0,5)):
+            xs[i], xs[j] = xs[j].copy(), xs[i].copy()
+            ys[i], ys[j] = ys[j].copy(), ys[i].copy()
 
-    # set offset in order not to crop key point
-    W_min = max(np.min(ary_pts_temp, axis=0)[0] - s * 15 * scale_rand, 0) #2 
-    H_min = max(np.min(ary_pts_temp, axis=0)[1] - s * 15 * scale_rand, 0) #2
-    W_max = min(np.max(ary_pts_temp, axis=0)[0] + s * 15 * scale_rand, W) #8
-    H_max = min(np.max(ary_pts_temp, axis=0)[1] + s * 15 * scale_rand, H) #7
-    W_len = W_max - W_min  # 6
-    H_len = H_max - H_min  # 5
-    window_len = max(H_len, W_len)  # 6
-    pad_updown = (window_len - H_len)/2 #.5
-    pad_leftright = (window_len - W_len)/2 # 0
+    # resize
+    H,W = img.shape[0], img.shape[1]
+    xs = xs*crop_size/W
+    ys = ys*crop_size/H
+    cen[0] = cen[0]*crop_size/W
+    cen[1] = cen[1]*crop_size/H
+    img = cv2.resize(img, (crop_size, crop_size))
 
-    # Calculate 4 corner position
-    W_low = max((W_min - pad_leftright), 0) # 2
-    W_high = min((W_max + pad_leftright), W) # 8
-    H_low = max((H_min - pad_updown), 0)  # 1.5
-    H_high = min((H_max + pad_updown), H) # 7.5
+    # generate heatmaps
 
-    # Update joint points and center
-    """
-    np.where(condition, x, y)
-    """
-    ary_pts_crop = np.where(ary_pts == [0, 0, 0], ary_pts, ary_pts - np.array([W_low, H_low, 0]))
-    c_crop = c - np.array([W_low, H_low])
 
-    img_crop = img[int(H_low):int(H_high), int(W_low):int(W_high), :].copy()
+    # generate centermap
 
-    # Pad when H, W different
-    H_new, W_new = img_crop.shape[0], img_crop.shape[1]
-    window_len_new = max(H_new, W_new)
-    pad_updown_new = int((window_len_new - H_new)/2)
-    pad_leftright_new = int((window_len_new - W_new)/2)
+    # pts_crop = []
+    # for i in range(pts.shape[0]):
+    #     if i in pts_nonzero:
+    #         pts_crop.append([xs[i], ys[i], 1.0])
+    #     else:
+    #         pts_crop.append([ 0.,0.,0. ])
+    # pts_crop = np.array(pts_crop)
 
-    # ReUpdate joint points and center (because of the padding)
-    ary_pts_crop = np.where(ary_pts_crop == [0, 0, 0], ary_pts_crop, ary_pts_crop + np.array([pad_leftright_new, pad_updown_new, 0]))
-    c_crop = c_crop + np.array([pad_leftright_new, pad_updown_new])
+    pts = [[xs[i], ys[i], pts[i,2]] for i in range(len(xs))]
 
-    img_crop = cv2.copyMakeBorder(img_crop, pad_updown_new, pad_updown_new, pad_leftright_new, pad_leftright_new, cv2.BORDER_CONSTANT, value=0)
+    return img, pts, cen
 
-    # change dtype and num scale
-    img_crop = img_crop / 255.
-    img_crop = img_crop.astype(np.float)
-
-    if use_flip:
-        flip = np.random.random() > 0.5
-        if flip:
-            # (H,W,C)
-            img_crop = np.flip(img_crop, 1)
-            # Calculate flip pts, remember to filter [0,0] which is no available heatmap
-            ary_pts_crop = np.where(ary_pts_crop == [0, 0, 0], ary_pts_crop,
-                                    [window_len_new, 0, 0] + ary_pts_crop * [-1, 1, 0])
-            c_crop = [window_len_new, 0] + c_crop * [-1, 1]
-            # Rearrange pts
-            # because of flip, left->right, right->left
-            ary_pts_crop = np.concatenate((ary_pts_crop[5::-1], ary_pts_crop[6:10], ary_pts_crop[15:9:-1]))
-
-    return img_crop, ary_pts_crop, c_crop
 
 
 def change_resolu(img, pts, c, resolu_out):
@@ -162,16 +211,19 @@ def change_resolu(img, pts, c, resolu_out):
     return img_out, pts_out, c_out
 
 
+# TODO: Modify flaws in showing joints
+# Chest and nest often overlap
 def show_stack_joints(img, pts, c=[0, 0], draw_lines=True, num_fig=1):
     '''
     Not support batch 
     :param img: np array, (H,W,C)
-    :param pts: same resolu as img, joint points, np array (16,3)
+    :param pts: same resolu as img, joint points, np array (16,3) or (16,2)
     :param c: center, np array (2,)
     '''
     # In case pts is not np array
     pts = np.array(pts)
     dict_style = {
+
         0: 'origin img',
 
         1: ['left ankle', 'b', 'x'],
@@ -217,11 +269,36 @@ def show_stack_joints(img, pts, c=[0, 0], draw_lines=True, num_fig=1):
         # Right arm
         plt.plot(list_pt_W[13:16], list_pt_H[13:16], color='r', linewidth=2)
         # Left leg
-        plt.plot(list_pt_W[0:3], list_pt_H[0:3], color='b', linewidth=2)
+        # change: if left ankle or knee doesn't exist
+        if pts[0,1] != 0:
+            if pts[1,1] != 0:
+                plt.plot(list_pt_W[0:3], list_pt_H[0:3], color='b', linewidth=2)
+            else:
+                pass  # werid condition
+        else:
+            if pts[1,1] != 0:
+                plt.plot(list_pt_W[1:3], list_pt_H[1:3], color='b', linewidth=2)
+            else:
+                pass  # draw nothing
+
         # Right leg
-        plt.plot(list_pt_W[3:6], list_pt_H[3:6], color='r', linewidth=2)
+        if pts[5,1] != 0:
+            if pts[4,1] != 0:
+                plt.plot(list_pt_W[3:6], list_pt_H[3:6], color='r', linewidth=2)
+            else:
+                pass # werid condition
+        else:
+            if pts[4,1] != 0:
+                plt.plot(list_pt_W[3:5], list_pt_H[3:5], color='r', linewidth=2)
+            else:
+                pass  # draw nothing
     plt.axis('off')
     plt.show()
+
+    # plt.gca().xaxis.set_major_locator(plt.NullLocator())
+    # plt.gca().yaxis.set_major_locator(plt.NullLocator())
+    # plt.margins(0,0)
+    # plt.savefig('./imgs/preprocess_%d.jpg' %num_fig,bbox_inches='tight',pad_inches=0.0) # remove padding
 
 
 
@@ -231,6 +308,8 @@ def show_heatmaps(img, heatmaps, c=np.zeros((2)), num_fig=1):
     :param img: np array (H,W,3)
     :param heatmaps: np array (H,W,num_pts)
     :param c: center, np array (2,)
+
+    how to deal with negative in heatmaps ??? 
     '''
     H, W = img.shape[0], img.shape[1]
     dict_name = {
@@ -272,3 +351,32 @@ def show_heatmaps(img, heatmaps, c=np.zeros((2)), num_fig=1):
     plt.imshow(heatmap_c)  # Only take in (H,W) or (H,W,3)
     plt.axis('off')
     plt.show()
+
+
+
+def heatmaps_to_coords(heatmaps, resolu_out=(368,368), prob_threshold=0.2):
+    '''
+    :param heatmaps: (46,46,16)
+    :param resolu_out: output resolution list
+    :return coord_joints: np array, shape (16,2)
+    '''
+
+    num_joints = heatmaps.shape[2]
+    # Resize
+    heatmaps = cv2.resize(heatmaps, resolu_out)
+    print('heatmaps.SHAPE', heatmaps.shape)
+
+    coord_joints = np.zeros((num_joints, 2))
+    for i in range(num_joints):
+        heatmap = heatmaps[..., i]
+        max = np.max(heatmap)
+        # Only keep points larger than a threshold
+        if max > prob_threshold:
+            idx = np.where(heatmap == max)
+            H = idx[0][0]
+            W = idx[1][0]
+        else:
+            H = 0
+            W = 0
+        coord_joints[i] = [W, H]
+    return coord_joints

@@ -167,47 +167,48 @@ class CPM(nn.Module):
             nn.Conv2d(128, self.k+1, 1, padding=0),
         )
 
-        # self.avg_pool = nn.AvgPool2d(kernel_size=9, stride=8, padding=1)
+        self.avg_pool = nn.AvgPool2d(kernel_size=9, stride=8, padding=1)
 
 
     def stage_1(self, x):
         return self.stage1(x)
 
-    def stage_2(self, x, score1, center_map):
+    def stage_2(self, x, score1, pool_center_map):
         x = F.relu(self.conv_stage2(x))
         #print(x.shape, score1.shape, pool_center_map.shape)
-        out = torch.cat([x, score1, center_map], dim=1)
+        out = torch.cat([x, score1, pool_center_map], dim=1)
         return self.stage2(out)
 
-    def stage_3(self, x, score2, center_map):
+    def stage_3(self, x, score2, pool_center_map):
         x = F.relu(self.conv_stage3(x))
-        out = torch.cat([x, score2, center_map], dim=1)
+        out = torch.cat([x, score2, pool_center_map], dim=1)
         return self.stage3(out)
     
-    def stage_4(self,x, score3, center_map):
+    def stage_4(self,x, score3, pool_center_map):
         x = F.relu(self.conv_stage4(x))
-        out = torch.cat([x, score3, center_map], dim=1)
+        out = torch.cat([x, score3, pool_center_map], dim=1)
         return self.stage4(out)
     
-    def stage_5(self,x, score4, center_map):
+    def stage_5(self,x, score4, pool_center_map):
         x = F.relu(self.conv_stage5(x))
-        out = torch.cat([x, score4, center_map], dim=1)
+        out = torch.cat([x, score4, pool_center_map], dim=1)
         return self.stage4(out)
     
-    def stage_6(self,x, score5, center_map):
+    def stage_6(self,x, score5, pool_center_map):
         x = F.relu(self.conv_stage6(x))
-        out = torch.cat([x, score5, center_map], dim=1)
+        out = torch.cat([x, score5, pool_center_map], dim=1)
         return self.stage4(out)
     
     def forward(self, x, centermap):
-        #pool_center_map = self.avg_pool(centermap)
+        pool_center_map = self.avg_pool(centermap)
 
         feature = self.middle(x)
         score1 = self.stage_1(x)            
-        score2 = self.stage_2(feature, score1, centermap)
-        score3 = self.stage_3(feature, score2, centermap)
-        score4 = self.stage_4(feature, score3, centermap)
-        score5 = self.stage_5(feature, score4, centermap)
-        score6 = self.stage_6(feature, score5, centermap)
+        score2 = self.stage_2(feature, score1, pool_center_map)
+        score3 = self.stage_3(feature, score2, pool_center_map)
+        score4 = self.stage_4(feature, score3, pool_center_map)
+        score5 = self.stage_5(feature, score4, pool_center_map)
+        score6 = self.stage_6(feature, score5, pool_center_map)
 
         return score1, score2, score3, score4, score5, score6
+

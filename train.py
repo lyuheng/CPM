@@ -9,8 +9,9 @@ import numpy as np
 
 from MPII import MPII
 from model import CPM
-from avgmeter import AverageMeter
+from utils import AverageMeter
 import img_utils as imgutils
+from utils import save_checkpoint
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # ERROR+FATAL
 
@@ -34,7 +35,7 @@ def train(device, optimizer, model, criterion):
         heatmap = torch.FloatTensor(heatmap).to(device)
         centermap = torch.FloatTensor(centermap).to(device)
 
-        score1, score2, score3, score4, score5, score6 = model(img,centermap)
+        score1, score2, score3, score4, score5, score6 = model(img, centermap)
 
         loss1 = criterion(heatmap, score1)
         loss2 = criterion(heatmap, score2)
@@ -86,6 +87,7 @@ def test(device, model, criterion):
             heatmaps_np = np.transpose(heatmaps_np, (1, 2, 0))
             img_np = img_copy.detach().cpu().numpy()
             img_np = np.transpose(img_np, (1, 2, 0))
+            
             imgutils.show_heatmaps(img_np, heatmaps_pred_np, num_fig=1)
             imgutils.show_heatmaps(img_np, heatmaps_np, num_fig=2)
             plt.pause(0.5)
@@ -113,15 +115,18 @@ def main():
         print('Epoch: {} || Training Loss: {}'.format(e+1, train_losses.avg))
         train_losses.reset()
 
-        if (e+1)%2 == 0:
+        if (e+1)%1 == 0:
             test(device, model, criterion)
             print('Epoch: {} || Testing Loss: {}'.format(e+1, test_losses.avg))
+            path_ckpt = './models/cpm_epoch_' + str(e+1)
             if test_losses.avg < best_test_loss:
                 # save the model
-                path_ckpt = './models/ckpt_cpm_EPOCH_' + str(e) + '.pkl'
-                torch.save(model.state_dict(), path_ckpt)
-                print('===============CHECKPOINT PARAMS SAVED AT EPOCH %d ===============' %(e))
+                save_checkpoint(model.state_dict(), True, path_ckpt)
+                print('===============CHECKPOINT PARAMS SAVED AT EPOCH %d ===============' %(e+1))
                 best_test_loss = test_losses.avg
+            else:
+                save_checkpoint(model.state_dict(), False, path_ckpt)
+                
 
             test_losses.reset()
     

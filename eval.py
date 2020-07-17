@@ -50,7 +50,7 @@ class MPII_(torchdata.Dataset):
         
         ### only use a sample to train  ###
         self.train_list = self.train_list[:2000]
-        self.test_list  = self.test_list[:200]
+        # self.test_list  = self.test_list[:200]
 
     def __getitem__(self, index):
 
@@ -63,7 +63,7 @@ class MPII_(torchdata.Dataset):
         img_folder_dir = os.path.join(MPII_FILE_DIR, 'images')
         img_dir = os.path.join(img_folder_dir, ele_anno['img_paths'])
         img = imgutils.load_img(img_dir)
-
+    
         pts = ele_anno['joint_self']
         cen = ele_anno['objpos'].copy()
         scale = ele_anno['scale_provided']
@@ -112,7 +112,7 @@ def test():
     model.eval()
     mpii = MPII_(is_training=False)
 
-    eval_loader = torchdata.DataLoader(mpii, batch_size=1, shuffle=True, num_workers=4, collate_fn=mpii.collate_fn)
+    eval_loader = torchdata.DataLoader(mpii, batch_size=1, shuffle=False, num_workers=2, collate_fn=mpii.collate_fn)
     for i, imgs in enumerate(eval_loader):
         
         imgs_torch = torch.FloatTensor(imgs).to(device)
@@ -130,12 +130,11 @@ def test():
             5: score5,
             6: score6,
         }
-
         joints = imgutils.heatmaps_to_coords(score6[0].cpu().detach().numpy().transpose((1,2,0))[:,:,:16] )
 
         img = imgs[0].transpose((1,2,0))
         img = np.uint8(255*img)
-        cv2.imwrite('./imgs/ori_stages.jpg', img)
+        # cv2.imwrite('./imgs/ori_stages.jpg', img)
 
 
         dict_name = {
@@ -159,17 +158,17 @@ def test():
             17: 'background'
         }
 
-        for idx, name in dict_name.items():
-            if idx == 0:
-                continue
-            paint(idx-1, name, img, score)
+        # for idx, name in dict_name.items():
+        #     if idx == 0:
+        #         continue
+        #     paint(idx-1, name, img, score)
 
 
         #im = cv2.addWeighted(img, 0.4, score6, 0.6, 0)
 
         #cv2.imshow('head',im )
 
-        #imgutils.show_stack_joints(imgs[0].transpose((1,2,0)), joints, draw_lines=True)
+        imgutils.show_stack_joints(imgs[0].transpose((1,2,0)), joints, draw_lines=True, num_fig=i+1)
 
         if i == 0:
             break

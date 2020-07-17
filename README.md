@@ -1,11 +1,14 @@
 # CPM
-Convolutional Pose Machine on [MPII](http://human-pose.mpi-inf.mpg.de/)
+Convolutional Pose Machine on [MPI](http://human-pose.mpi-inf.mpg.de/)
 
 * Preprocess
  > Origin <img src="https://github.com/lyuheng/CPM/blob/master/imgs/ori_cat.jpg" >
  > After rotate, flip, crop  <img src="https://github.com/lyuheng/CPM/blob/master/imgs/crop_cat.jpg" >
  
 * Results of training on first 2k images(total ~20k).
+
+ >PCKh curve
+<img src="https://github.com/lyuheng/CPM/blob/master/imgs/PCKh.jpg" width="40%" height="40%">
 
 |    | From stage1 to stage 6 | 
 |:--:|:--:|

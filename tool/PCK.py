@@ -9,7 +9,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('/home/lyuheng/vision/CPM_MPII')
+sys.path.append('..') 
 
 from model import CPM
 import img_utils as imgutils

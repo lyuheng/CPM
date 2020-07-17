@@ -8,7 +8,7 @@ Convolutional Pose Machine on [MPI](http://human-pose.mpi-inf.mpg.de/)
 * Results of training on first 2k images(total ~20k).
 
  >PCKh curve
-<img src="https://github.com/lyuheng/CPM/blob/master/imgs/PCKh.jpg" width="40%" height="40%">
+<img src="https://github.com/lyuheng/CPM/blob/master/imgs/PCKh.jpg" width="40%" height="40%" \>
 
 |    | From stage1 to stage 6 | 
 |:--:|:--:|

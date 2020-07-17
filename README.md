@@ -5,10 +5,12 @@ Convolutional Pose Machine on [MPII](http://human-pose.mpi-inf.mpg.de/)
  > Origin <img src="https://github.com/lyuheng/CPM/blob/master/imgs/ori_cat.jpg" >
  > After rotate, flip and crop  <img src="https://github.com/lyuheng/CPM/blob/master/imgs/crop_cat.jpg" >
  
-* Results of training on first 2k images(total ~22k).
+### Results of training on first 2k images(total ~22k).
 
- >PCKh curve
+* PCKh curve
 <img src="https://github.com/lyuheng/CPM/blob/master/imgs/PCKh.jpg" width="40%" height="40%" >
+
+* belief maps across stages
 
 |  | From stage1 to stage 6 | 
 |:--:|:--:|

@@ -1,4 +1,4 @@
-# CPM
+# Convolutional Pose Machine
 Convolutional Pose Machine on [MPII](http://human-pose.mpi-inf.mpg.de/)
 
 * Preprocess
